@@ -215,7 +215,7 @@ class AppSettingsUpdate(BaseModel):
 
 
 class ConnectionTestRequest(BaseModel):
-    provider: Literal["openai", "anthropic", "ollama"]
+    provider: Literal["openai", "anthropic", "ollama", "openrouter"]
     api_key: Optional[str] = None
     endpoint: Optional[str] = None
 

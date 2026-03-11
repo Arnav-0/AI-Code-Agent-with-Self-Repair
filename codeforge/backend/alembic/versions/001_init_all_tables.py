@@ -104,6 +104,7 @@ def upgrade() -> None:
             server_default=sa.func.now(),
         ),
         sa.Column("benchmark_type", sa.String(20), nullable=False),
+        sa.Column("status", sa.String(20), nullable=False, server_default="pending"),
         sa.Column("model_config_json", sa.JSON()),
         sa.Column("total_problems", sa.Integer()),
         sa.Column("passed", sa.Integer()),

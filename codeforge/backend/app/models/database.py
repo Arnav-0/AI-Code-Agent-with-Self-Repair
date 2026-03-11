@@ -107,6 +107,7 @@ class BenchmarkRun(Base):
     __tablename__ = "benchmark_runs"
 
     benchmark_type: Mapped[str] = mapped_column(String(20), nullable=False)
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="pending")
     model_config_json: Mapped[dict] = mapped_column(JSON)
     total_problems: Mapped[int]
     passed: Mapped[int]

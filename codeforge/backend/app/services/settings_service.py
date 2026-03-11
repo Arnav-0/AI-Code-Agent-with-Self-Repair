@@ -65,8 +65,58 @@ class SettingsService:
     async def test_connection(
         self, request: ConnectionTestRequest
     ) -> ConnectionTestResponse:
-        return ConnectionTestResponse(
-            success=True,
-            message="Connection test not yet implemented",
-            latency_ms=None,
-        )
+        import time
+
+        provider = request.provider.lower()
+        start = time.perf_counter()
+
+        try:
+            if provider == "openai":
+                from app.llm.providers import OpenAIProvider
+
+                p = OpenAIProvider(api_key=request.api_key, model="gpt-4o-mini")
+                ok = await p.health_check()
+            elif provider == "anthropic":
+                from app.llm.providers import AnthropicProvider
+
+                p = AnthropicProvider(api_key=request.api_key)
+                ok = await p.health_check()
+            elif provider == "ollama":
+                from app.llm.providers import OllamaProvider
+
+                base_url = request.endpoint or "http://localhost:11434"
+                p = OllamaProvider(base_url=base_url)
+                ok = await p.health_check()
+            elif provider == "openrouter":
+                from app.llm.providers import OpenRouterProvider
+
+                p = OpenRouterProvider(api_key=request.api_key)
+                ok = await p.health_check()
+            else:
+                return ConnectionTestResponse(
+                    success=False,
+                    message=f"Unknown provider: {provider}",
+                    latency_ms=None,
+                )
+
+            latency = int((time.perf_counter() - start) * 1000)
+
+            if ok:
+                return ConnectionTestResponse(
+                    success=True,
+                    message=f"{provider.title()} connection successful",
+                    latency_ms=latency,
+                )
+            else:
+                return ConnectionTestResponse(
+                    success=False,
+                    message=f"{provider.title()} health check failed",
+                    latency_ms=latency,
+                )
+        except Exception as exc:
+            latency = int((time.perf_counter() - start) * 1000)
+            return ConnectionTestResponse(
+                success=False,
+                message=f"Connection failed: {exc}",
+                latency_ms=latency,
+            )
