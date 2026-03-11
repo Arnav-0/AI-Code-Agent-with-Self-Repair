@@ -1,0 +1,335 @@
+[
+  {
+    "id": "custom_01",
+    "category": "data_processing",
+    "description": "Write a function `compute_stats(data: list[float]) -> dict` that computes and returns a dictionary with keys 'mean', 'median', 'min', 'max', and 'std' (standard deviation) for a list of floats. Use only the standard library.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "import statistics; result = compute_stats([1.0, 2.0, 3.0, 4.0, 5.0]); assert result['mean'] == 3.0",
+      "result = compute_stats([1.0, 2.0, 3.0, 4.0, 5.0]); assert result['min'] == 1.0 and result['max'] == 5.0",
+      "result = compute_stats([1.0, 2.0, 3.0, 4.0, 5.0]); assert result['median'] == 3.0"
+    ],
+    "expected_imports": ["statistics"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_02",
+    "category": "data_processing",
+    "description": "Write a function `merge_records(left: list[dict], right: list[dict], key: str) -> list[dict]` that merges two lists of dictionaries on a common key (like a SQL inner join). Records with no match in the other list are excluded. Each merged record should contain all fields from both sides.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "left = [{'id': 1, 'name': 'Alice'}, {'id': 2, 'name': 'Bob'}]; right = [{'id': 1, 'score': 90}, {'id': 3, 'score': 80}]; result = merge_records(left, right, 'id'); assert len(result) == 1",
+      "left = [{'id': 1, 'name': 'Alice'}]; right = [{'id': 1, 'score': 90}]; result = merge_records(left, right, 'id'); assert result[0]['name'] == 'Alice' and result[0]['score'] == 90"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_03",
+    "category": "data_processing",
+    "description": "Write a function `pivot_table(records: list[dict], index: str, columns: str, values: str, aggfunc: str = 'sum') -> dict` that creates a pivot table from a list of records. `aggfunc` can be 'sum', 'mean', or 'count'. Returns a nested dict: {row_val: {col_val: aggregated_value}}.",
+    "difficulty": "hard",
+    "test_assertions": [
+      "data = [{'region': 'A', 'product': 'X', 'sales': 10}, {'region': 'A', 'product': 'X', 'sales': 20}, {'region': 'B', 'product': 'Y', 'sales': 30}]; result = pivot_table(data, 'region', 'product', 'sales', 'sum'); assert result['A']['X'] == 30",
+      "data = [{'region': 'A', 'product': 'X', 'sales': 10}, {'region': 'A', 'product': 'X', 'sales': 20}]; result = pivot_table(data, 'region', 'product', 'sales', 'mean'); assert result['A']['X'] == 15.0"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_04",
+    "category": "data_processing",
+    "description": "Write a function `resample_timeseries(data: list[tuple], freq: str) -> list[tuple]` where data is a list of (timestamp_str, value) tuples (ISO 8601 dates), and freq is 'weekly' or 'monthly'. Return the sum of values grouped by the chosen frequency as a list of (period_label, sum) tuples sorted by period.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "from datetime import date; data = [('2024-01-01', 10), ('2024-01-15', 20), ('2024-02-01', 30)]; result = resample_timeseries(data, 'monthly'); assert len(result) == 2",
+      "data = [('2024-01-01', 10), ('2024-01-15', 20), ('2024-02-01', 30)]; result = resample_timeseries(data, 'monthly'); sums = dict(result); assert sums.get('2024-01', 0) == 30 or any(v == 30 for _, v in result)"
+    ],
+    "expected_imports": ["datetime"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_05",
+    "category": "data_processing",
+    "description": "Write a function `normalize(data: list[float], method: str = 'minmax') -> list[float]` that normalizes a list of floats. Support 'minmax' (scale to [0, 1]) and 'zscore' (subtract mean, divide by std). Return the original list if all values are equal.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "result = normalize([0.0, 5.0, 10.0], 'minmax'); assert result == [0.0, 0.5, 1.0]",
+      "result = normalize([1.0, 1.0, 1.0], 'minmax'); assert result == [1.0, 1.0, 1.0] or result == [0.0, 0.0, 0.0]",
+      "import statistics; result = normalize([2.0, 4.0, 6.0], 'zscore'); assert abs(result[1]) < 1e-9"
+    ],
+    "expected_imports": ["statistics"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_06",
+    "category": "algorithm",
+    "description": "Write a function `bfs(graph: dict, start: str) -> list[str]` that performs breadth-first search on an adjacency list graph and returns the list of nodes visited in BFS order starting from `start`.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "graph = {'A': ['B', 'C'], 'B': ['D'], 'C': [], 'D': []}; result = bfs(graph, 'A'); assert result[0] == 'A'",
+      "graph = {'A': ['B', 'C'], 'B': ['D'], 'C': [], 'D': []}; result = bfs(graph, 'A'); assert set(result) == {'A', 'B', 'C', 'D'}",
+      "graph = {'A': ['B', 'C'], 'B': ['D'], 'C': [], 'D': []}; result = bfs(graph, 'A'); assert result.index('B') < result.index('D')"
+    ],
+    "expected_imports": ["collections"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_07",
+    "category": "algorithm",
+    "description": "Write a function `lcs(s1: str, s2: str) -> str` that returns the longest common subsequence of two strings using dynamic programming.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "assert lcs('ABCBDAB', 'BDCAB') in ('BCAB', 'BDAB', 'BCAB')",
+      "assert lcs('', 'ABC') == ''",
+      "assert lcs('ABC', 'ABC') == 'ABC'",
+      "assert len(lcs('AGGTAB', 'GXTXAYB')) == 4"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 15
+  },
+  {
+    "id": "custom_08",
+    "category": "algorithm",
+    "description": "Write a function `binary_search(arr: list[int], target: int) -> int` that returns the index of target in a sorted list, or -1 if not found. Handle edge cases: empty list, single element, duplicates (return any valid index).",
+    "difficulty": "easy",
+    "test_assertions": [
+      "assert binary_search([1, 3, 5, 7, 9], 5) == 2",
+      "assert binary_search([1, 3, 5, 7, 9], 6) == -1",
+      "assert binary_search([], 5) == -1",
+      "assert binary_search([42], 42) == 0"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_09",
+    "category": "algorithm",
+    "description": "Write a function `merge_sort(arr: list[int]) -> list[int]` that sorts a list of integers using the merge sort algorithm. Return a new sorted list without modifying the original.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "result = merge_sort([3, 1, 4, 1, 5, 9, 2, 6]); assert result == sorted([3, 1, 4, 1, 5, 9, 2, 6])",
+      "result = merge_sort([]); assert result == []",
+      "result = merge_sort([1]); assert result == [1]",
+      "original = [3, 1, 2]; _ = merge_sort(original); assert original == [3, 1, 2]"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_10",
+    "category": "algorithm",
+    "description": "Write a function `dijkstra(graph: dict, start: str) -> dict` that finds shortest paths from `start` to all reachable nodes. `graph` is an adjacency dict: {node: [(neighbor, weight), ...]}. Return a dict of {node: distance}.",
+    "difficulty": "hard",
+    "test_assertions": [
+      "graph = {'A': [('B', 1), ('C', 4)], 'B': [('C', 2), ('D', 5)], 'C': [('D', 1)], 'D': []}; result = dijkstra(graph, 'A'); assert result['A'] == 0",
+      "graph = {'A': [('B', 1), ('C', 4)], 'B': [('C', 2), ('D', 5)], 'C': [('D', 1)], 'D': []}; result = dijkstra(graph, 'A'); assert result['D'] == 4",
+      "graph = {'A': [('B', 1), ('C', 4)], 'B': [('C', 2), ('D', 5)], 'C': [('D', 1)], 'D': []}; result = dijkstra(graph, 'A'); assert result['C'] == 3"
+    ],
+    "expected_imports": ["heapq"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_11",
+    "category": "string_manipulation",
+    "description": "Write a function `parse_log_line(line: str) -> dict | None` that parses a log line in the format '[LEVEL] YYYY-MM-DD HH:MM:SS - message' using regex. Return a dict with keys 'level', 'timestamp', 'message', or None if the line doesn't match.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "result = parse_log_line('[ERROR] 2024-01-15 10:30:00 - Connection refused'); assert result is not None",
+      "result = parse_log_line('[ERROR] 2024-01-15 10:30:00 - Connection refused'); assert result['level'] == 'ERROR'",
+      "result = parse_log_line('[INFO] 2024-01-15 10:30:00 - Server started'); assert result['message'] == 'Server started'",
+      "result = parse_log_line('not a valid log line'); assert result is None"
+    ],
+    "expected_imports": ["re"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_12",
+    "category": "string_manipulation",
+    "description": "Write a function `tokenize(text: str) -> list[str]` that splits text into tokens. A token is a sequence of word characters (alphanumeric + underscore). Special characters (punctuation, whitespace) are delimiters and should not appear in the output.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "result = tokenize('Hello, world! How are you?'); assert result == ['Hello', 'world', 'How', 'are', 'you']",
+      "result = tokenize('foo_bar baz123'); assert result == ['foo_bar', 'baz123']",
+      "result = tokenize(''); assert result == []",
+      "result = tokenize('!!!'); assert result == []"
+    ],
+    "expected_imports": ["re"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_13",
+    "category": "string_manipulation",
+    "description": "Write a function `markdown_to_text(md: str) -> str` that strips common Markdown formatting: headers (# H1), bold (**text**), italic (*text*), inline code (`code`), and links [text](url). Return plain text with whitespace normalized.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "result = markdown_to_text('# Hello World'); assert 'Hello World' in result and '#' not in result",
+      "result = markdown_to_text('**bold** and *italic*'); assert 'bold' in result and 'italic' in result and '*' not in result",
+      "result = markdown_to_text('[click here](https://example.com)'); assert 'click here' in result and 'https' not in result",
+      "result = markdown_to_text('Use `code` here'); assert 'code' in result and '`' not in result"
+    ],
+    "expected_imports": ["re"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_14",
+    "category": "file_io",
+    "description": "Write a function `read_json_config(path: str, defaults: dict) -> dict` that reads a JSON file and merges it with `defaults` (file values override defaults). If the file doesn't exist or is invalid JSON, return the defaults. Also write `write_json_config(path: str, config: dict) -> None` that saves the dict as pretty-printed JSON.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "import json, tempfile, os; f = tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False); json.dump({'a': 1}, f); f.close(); result = read_json_config(f.name, {'a': 0, 'b': 2}); os.unlink(f.name); assert result['a'] == 1 and result['b'] == 2",
+      "import tempfile, os; result = read_json_config('/nonexistent/path.json', {'x': 42}); assert result == {'x': 42}"
+    ],
+    "expected_imports": ["json"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_15",
+    "category": "file_io",
+    "description": "Write a function `analyze_log_file(content: str) -> dict` that analyzes log content (multi-line string). Return a dict with: 'error_count' (int), 'warning_count' (int), 'info_count' (int), 'total_lines' (int), and 'errors' (list of error message strings).",
+    "difficulty": "easy",
+    "test_assertions": [
+      "log = '[ERROR] 2024-01-01 00:00:00 - Disk full\\n[WARNING] 2024-01-01 00:00:01 - Low memory\\n[INFO] 2024-01-01 00:00:02 - Started'; result = analyze_log_file(log); assert result['error_count'] == 1",
+      "log = '[ERROR] 2024-01-01 00:00:00 - Disk full\\n[WARNING] 2024-01-01 00:00:01 - Low memory\\n[INFO] 2024-01-01 00:00:02 - Started'; result = analyze_log_file(log); assert result['warning_count'] == 1 and result['info_count'] == 1",
+      "log = '[ERROR] 2024-01-01 00:00:00 - Disk full\\n[WARNING] 2024-01-01 00:00:01 - Low memory\\n[INFO] 2024-01-01 00:00:02 - Started'; result = analyze_log_file(log); assert result['total_lines'] == 3"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_16",
+    "category": "file_io",
+    "description": "Write a function `csv_to_json(csv_text: str) -> list[dict]` that converts CSV text (first row = headers) to a list of dictionaries. Handle quoted fields containing commas. Return an empty list for empty input.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "result = csv_to_json('name,age\\nAlice,30\\nBob,25'); assert len(result) == 2",
+      "result = csv_to_json('name,age\\nAlice,30\\nBob,25'); assert result[0] == {'name': 'Alice', 'age': '30'}",
+      "result = csv_to_json(''); assert result == []",
+      "result = csv_to_json('name,note\\nAlice,\"hello, world\"'); assert result[0]['note'] == 'hello, world'"
+    ],
+    "expected_imports": ["csv", "io"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_17",
+    "category": "file_io",
+    "description": "Write a function `parse_ini(content: str) -> dict` that parses a simple INI file format from a string. Sections are delimited by [SECTION] headers. Keys and values are separated by '='. Comments start with ';' or '#'. Return a dict of {section: {key: value}}. Keys outside any section go under a '__default__' section.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "ini = '[server]\\nhost = localhost\\nport = 8080\\n[db]\\nname = mydb'; result = parse_ini(ini); assert result['server']['host'] == 'localhost'",
+      "ini = '[server]\\nhost = localhost\\nport = 8080\\n[db]\\nname = mydb'; result = parse_ini(ini); assert result['db']['name'] == 'mydb'",
+      "ini = '; comment\\n[sec]\\nkey = value'; result = parse_ini(ini); assert result['sec']['key'] == 'value'",
+      "ini = 'global = yes\\n[sec]\\nkey = val'; result = parse_ini(ini); assert result.get('__default__', {}).get('global') == 'yes' or result.get('global') == 'yes'"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_18",
+    "category": "multi_step",
+    "description": "Write a function `evaluate_expr(expr: str) -> float` that evaluates a mathematical expression string containing +, -, *, / operators and parentheses with correct operator precedence. Do not use eval().",
+    "difficulty": "hard",
+    "test_assertions": [
+      "assert evaluate_expr('2 + 3 * 4') == 14.0",
+      "assert evaluate_expr('(2 + 3) * 4') == 20.0",
+      "assert evaluate_expr('10 / 2 - 1') == 4.0",
+      "assert evaluate_expr('3 + 4 * 2 / (1 - 5)') == 1.0"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 15
+  },
+  {
+    "id": "custom_19",
+    "category": "multi_step",
+    "description": "Write a class `TaskScheduler` with methods: `add_task(name: str, priority: int, func: callable) -> None` and `run_next() -> str | None` that executes and returns the name of the highest-priority task (lower number = higher priority), or None if no tasks remain. Tasks with the same priority should run in insertion order (FIFO).",
+    "difficulty": "medium",
+    "test_assertions": [
+      "results = []; s = TaskScheduler(); s.add_task('low', 10, lambda: results.append('low')); s.add_task('high', 1, lambda: results.append('high')); s.run_next(); assert results == ['high']",
+      "s = TaskScheduler(); s.add_task('a', 5, lambda: None); name = s.run_next(); assert name == 'a'",
+      "s = TaskScheduler(); assert s.run_next() is None"
+    ],
+    "expected_imports": ["heapq"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_20",
+    "category": "multi_step",
+    "description": "Write a class `LRUCache` with `capacity: int` parameter and methods `get(key: int) -> int` (returns -1 if not found) and `put(key: int, value: int) -> None`. When capacity is exceeded, evict the least recently used item.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "cache = LRUCache(2); cache.put(1, 1); cache.put(2, 2); assert cache.get(1) == 1",
+      "cache = LRUCache(2); cache.put(1, 1); cache.put(2, 2); cache.get(1); cache.put(3, 3); assert cache.get(2) == -1",
+      "cache = LRUCache(2); cache.put(1, 1); cache.put(2, 2); cache.get(1); cache.put(3, 3); assert cache.get(3) == 3",
+      "cache = LRUCache(1); cache.put(1, 1); cache.put(2, 2); assert cache.get(1) == -1"
+    ],
+    "expected_imports": ["collections"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_21",
+    "category": "multi_step",
+    "description": "Write a class `URLShortener` with methods: `shorten(url: str) -> str` (returns a short code like 'ab12cd') and `expand(code: str) -> str | None` (returns the original URL or None if not found). Short codes should be 6 alphanumeric characters and consistent (same URL always gets same code).",
+    "difficulty": "medium",
+    "test_assertions": [
+      "s = URLShortener(); code = s.shorten('https://example.com'); assert len(code) == 6",
+      "s = URLShortener(); code1 = s.shorten('https://example.com'); code2 = s.shorten('https://example.com'); assert code1 == code2",
+      "s = URLShortener(); code = s.shorten('https://example.com'); assert s.expand(code) == 'https://example.com'",
+      "s = URLShortener(); assert s.expand('xxxxxx') is None"
+    ],
+    "expected_imports": ["hashlib"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_22",
+    "category": "multi_step",
+    "description": "Write a function `run_state_machine(transitions: dict, initial: str, inputs: list[str]) -> str` that runs a finite state machine. `transitions` is {current_state: {input: next_state}}. Process each input in sequence starting from `initial`. Return the final state. If a transition is undefined, remain in the current state.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "t = {'idle': {'start': 'running'}, 'running': {'stop': 'idle', 'pause': 'paused'}, 'paused': {'resume': 'running'}}; assert run_state_machine(t, 'idle', ['start']) == 'running'",
+      "t = {'idle': {'start': 'running'}, 'running': {'stop': 'idle', 'pause': 'paused'}, 'paused': {'resume': 'running'}}; assert run_state_machine(t, 'idle', ['start', 'pause', 'resume', 'stop']) == 'idle'",
+      "t = {'idle': {'start': 'running'}, 'running': {'stop': 'idle'}}; assert run_state_machine(t, 'idle', ['unknown']) == 'idle'"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_23",
+    "category": "error_handling",
+    "description": "Write a decorator `retry(max_attempts: int = 3, delay: float = 0.0, exceptions: tuple = (Exception,))` that retries the decorated function on failure. After max_attempts, re-raise the last exception. Support configurable exceptions to catch.",
+    "difficulty": "medium",
+    "test_assertions": [
+      "call_count = [0]\n@retry(max_attempts=3, delay=0.0)\ndef flaky():\n    call_count[0] += 1\n    if call_count[0] < 3:\n        raise ValueError('fail')\n    return 'ok'\nassert flaky() == 'ok'\nassert call_count[0] == 3",
+      "import pytest\ncall_count = [0]\n@retry(max_attempts=2, delay=0.0)\ndef always_fails():\n    call_count[0] += 1\n    raise ValueError('fail')\ntry:\n    always_fails()\n    assert False, 'should have raised'\nexcept ValueError:\n    pass\nassert call_count[0] == 2"
+    ],
+    "expected_imports": ["functools", "time"],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_24",
+    "category": "error_handling",
+    "description": "Write a function `validate(data: dict, schema: dict) -> list[str]` that validates a dictionary against a schema. The schema maps field names to rules: {'type': str|int|float|bool|list|dict, 'required': bool, 'min': number, 'max': number}. Return a list of error messages (empty list if valid).",
+    "difficulty": "medium",
+    "test_assertions": [
+      "schema = {'age': {'type': int, 'required': True, 'min': 0, 'max': 150}}; errors = validate({'age': 25}, schema); assert errors == []",
+      "schema = {'age': {'type': int, 'required': True, 'min': 0, 'max': 150}}; errors = validate({}, schema); assert len(errors) > 0",
+      "schema = {'age': {'type': int, 'required': True, 'min': 0, 'max': 150}}; errors = validate({'age': -1}, schema); assert len(errors) > 0",
+      "schema = {'name': {'type': str, 'required': False}}; errors = validate({}, schema); assert errors == []"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  },
+  {
+    "id": "custom_25",
+    "category": "error_handling",
+    "description": "Write a function `safe_get(data: dict, *keys, default=None)` that safely traverses nested dictionaries/lists using a chain of keys/indices. Return `default` if any key is missing or an index is out of range instead of raising an error.",
+    "difficulty": "easy",
+    "test_assertions": [
+      "data = {'a': {'b': {'c': 42}}}; assert safe_get(data, 'a', 'b', 'c') == 42",
+      "data = {'a': {'b': 1}}; assert safe_get(data, 'a', 'x', default='missing') == 'missing'",
+      "data = {'items': [10, 20, 30]}; assert safe_get(data, 'items', 1) == 20",
+      "data = {'items': [10]}; assert safe_get(data, 'items', 5, default=None) is None"
+    ],
+    "expected_imports": [],
+    "timeout_seconds": 10
+  }
+]

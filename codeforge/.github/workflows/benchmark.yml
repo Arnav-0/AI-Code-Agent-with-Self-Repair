@@ -1,0 +1,111 @@
+name: Weekly Benchmarks
+
+on:
+  schedule:
+    - cron: "0 6 * * 1"  # Every Monday at 06:00 UTC
+  workflow_dispatch:
+    inputs:
+      benchmark_type:
+        description: "Benchmark type to run"
+        required: false
+        default: "all"
+        type: choice
+        options:
+          - all
+          - humaneval
+          - mbpp
+          - custom
+      with_repair:
+        description: "Enable self-repair loop"
+        required: false
+        default: "true"
+        type: choice
+        options:
+          - "true"
+          - "false"
+
+jobs:
+  run-benchmarks:
+    name: Run Benchmarks (${{ github.event.inputs.benchmark_type || 'all' }})
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: codeforge
+          POSTGRES_PASSWORD: codeforge
+          POSTGRES_DB: codeforge_bench
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+
+      - name: Install backend dependencies
+        run: pip install -e '.[dev]'
+        working-directory: backend
+
+      - name: Install benchmark dependencies
+        run: pip install -r requirements-benchmark.txt || true
+        working-directory: .
+
+      - name: Create results directory
+        run: mkdir -p benchmarks/results
+
+      - name: Run benchmarks
+        run: |
+          BENCH_TYPE="${{ github.event.inputs.benchmark_type || 'all' }}"
+          REPAIR="${{ github.event.inputs.with_repair || 'true' }}"
+          REPAIR_FLAG=""
+          if [ "$REPAIR" = "false" ]; then
+            REPAIR_FLAG="--no-repair"
+          fi
+          python -m benchmarks.runner --type "$BENCH_TYPE" $REPAIR_FLAG
+        env:
+          DATABASE_URL: postgresql+asyncpg://codeforge:codeforge@localhost:5432/codeforge_bench
+          DATABASE_SYNC_URL: postgresql://codeforge:codeforge@localhost:5432/codeforge_bench
+          REDIS_URL: redis://localhost:6379/0
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OLLAMA_BASE_URL: ${{ vars.OLLAMA_BASE_URL || 'http://localhost:11434' }}
+
+      - name: Upload benchmark results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: benchmark-results-${{ github.run_id }}
+          path: benchmarks/results/
+          retention-days: 90
+
+      - name: Post results summary
+        if: always()
+        run: |
+          echo "## Benchmark Results" >> $GITHUB_STEP_SUMMARY
+          for f in benchmarks/results/*.json; do
+            if [ -f "$f" ]; then
+              echo "### $(basename $f)" >> $GITHUB_STEP_SUMMARY
+              python3 -c "
+          import json, sys
+          with open('$f') as fh:
+              d = json.load(fh)
+          print(f'- **pass@1**: {d.get(\"pass_at_1\", 0):.3f}')
+          print(f'- **passed**: {d.get(\"passed\", 0)}/{d.get(\"total_problems\", 0)}')
+          print(f'- **avg retries**: {d.get(\"avg_retries\", 0):.2f}')
+          print(f'- **total cost**: \${d.get(\"total_cost_usd\", 0):.4f}')
+              " >> $GITHUB_STEP_SUMMARY
+            fi
+          done
